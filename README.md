@@ -6,7 +6,7 @@ Interactive visualization of the top 25 cryptocurrencies by market cap from 2013
 
 ## Tech
 
-Built with p5.js. Data scraped from [coinmarketcap.com](coinmarketcap.com) using Python and Jupyter in `Scraping.ipynb`.
+Built with p5.js. Data scraped from [coinmarketcap.com](https://coinmarketcap.com) using Python and Jupyter in `Scraping.ipynb`.
 
 ## Usage
 
