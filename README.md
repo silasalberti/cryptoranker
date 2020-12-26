@@ -1,12 +1,12 @@
 # Cryptoranker
 
-Interactive visualization of the top 25 cryptocurrencies from 2013 – 2020 using p5.js. Check it out on: https://cryptoranker.netlify.app.
+Interactive visualization of the top 25 cryptocurrencies by market cap from 2013 – 2020. Check it out [here](https://cryptoranker.alberti.xyz).
 
 ![](doc/example.gif)
 
 ## Tech
 
-Built with p5.js. Data scraped from coinmarketcap.com using Python and Jupyter in `Scraping.ipynb`.
+Built with p5.js. Data scraped from [coinmarketcap.com](coinmarketcap.com) using Python and Jupyter in `Scraping.ipynb`.
 
 ## Usage
 
