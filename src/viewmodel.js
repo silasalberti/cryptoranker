@@ -52,7 +52,7 @@ function generateState(currentIndex = 0) {
         (accumulator, currentRow) => accumulator + currentRow.value,
         0
       ),
-      to: nextRanking.reduce(
+      to: (nextRanking ? nextRanking : currentRanking).reduce(
         (accumulator, currentRow) => accumulator + currentRow.value,
         0
       ),
