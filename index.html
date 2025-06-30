@@ -1,38 +1,179 @@
 <html>
   <head>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script> -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptoranker - Interactive Cryptocurrency Visualization</title>
+    <meta name="description" content="Interactive visualization of top 25 cryptocurrencies by market cap from 2013-2020">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="cryptocurrency-data.csv.gz" as="fetch" type="application/gzip" crossorigin>
+    <link rel="preload" href="lib/p5.min.js" as="script">
+    
+    <!-- Load p5.js library -->
     <script src="lib/p5.min.js"></script>
+    
+    <!-- Load application scripts in order -->
     <script src="src/loadData.js"></script>
     <script src="src/viewmodel.js"></script>
     <script src="src/render.js"></script>
+    
     <style>
       body {
         margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f8f8ff;
+        overflow-x: auto;
       }
+      
+      /* Optimized button styles */
       button {
         border: 1px solid #aabbaa;
         background-color: #f8f8ff;
         border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-size: 12px;
+        padding: 4px 8px;
       }
+      
+      button:hover {
+        background-color: #f0f0f8;
+      }
+      
       button:active {
         border: 1px solid #aabbaa;
-        background-color: #f0f0f8;
+        background-color: #e8e8f0;
         outline: none;
       }
+      
       button:focus {
         outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
       }
+      
+      /* Optimized select styles */
       select {
         border: 1px solid #aabbaa;
         background-color: #f8f8ff;
         border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        padding: 4px 8px;
       }
+      
       select:focus {
         outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+      
+      /* Loading indicator */
+      .loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 18px;
+        color: #666;
+        z-index: 1000;
+      }
+      
+      .loading.hidden {
+        display: none;
+      }
+      
+      /* Performance hint */
+      .performance-hint {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 3px;
+        font-size: 12px;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .performance-hint.show {
+        opacity: 1;
       }
     </style>
   </head>
   <body>
+    <div class="loading" id="loading">Loading cryptocurrency data...</div>
+    <div class="performance-hint" id="performance-hint">
+      <span id="fps-counter">FPS: --</span> | 
+      <span id="memory-usage">Memory: --</span>
+    </div>
     <main></main>
+    
+    <script>
+      // Performance monitoring
+      let frameCount = 0;
+      let lastTime = performance.now();
+      let fpsHistory = [];
+      
+      function updatePerformanceHint() {
+        const now = performance.now();
+        const delta = now - lastTime;
+        
+        if (delta >= 1000) {
+          const fps = Math.round((frameCount * 1000) / delta);
+          fpsHistory.push(fps);
+          if (fpsHistory.length > 10) fpsHistory.shift();
+          
+          const avgFPS = Math.round(fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length);
+          
+          document.getElementById('fps-counter').textContent = `FPS: ${avgFPS}`;
+          
+          // Show performance hint if FPS is low
+          const hint = document.getElementById('performance-hint');
+          if (avgFPS < 30) {
+            hint.classList.add('show');
+          } else if (avgFPS > 50) {
+            hint.classList.remove('show');
+          }
+          
+          // Memory usage (if available)
+          if (performance.memory) {
+            const memoryMB = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
+            document.getElementById('memory-usage').textContent = `Memory: ${memoryMB}MB`;
+          }
+          
+          frameCount = 0;
+          lastTime = now;
+        }
+        frameCount++;
+        requestAnimationFrame(updatePerformanceHint);
+      }
+      
+      // Start performance monitoring
+      requestAnimationFrame(updatePerformanceHint);
+      
+      // Hide loading indicator when data is loaded
+      function hideLoading() {
+        const loading = document.getElementById('loading');
+        if (loading) {
+          loading.classList.add('hidden');
+        }
+      }
+      
+      // Check for data loading completion
+      const checkDataLoaded = setInterval(() => {
+        if (typeof isDataLoaded !== 'undefined' && isDataLoaded) {
+          hideLoading();
+          clearInterval(checkDataLoaded);
+        }
+      }, 100);
+      
+      // Service Worker registration for caching (if available)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+          // Service worker not available, continue without caching
+        });
+      }
+    </script>
   </body>
 </html>
